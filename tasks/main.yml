@@ -5,7 +5,10 @@
   get_url:
     url: https://sourceforge.net/projects/refind/files/latest/download/
     dest: "/tmp"
+    # retries: 3
+    # delay: 1
   register: refind_zip
+  until: refind_zip is succeeded
   tags: refind
 
 - name: '[refind] Unarchive rEFInd'
@@ -36,10 +39,9 @@
   tags: refind
 
 - name: '[refind] Mount ESP volume under /Volumes/ESP'
-  command: mountesp
+  command: /usr/local/bin/mountesp
   register: refind_mountesp_result
   become: yes
-  changed_when: "'The ESP is mounted at /Volumes/ESP' in refind_mountesp_result.stdout"
   when:
   - refind_mountesp.stat.exists
   - not refind_install.changed
